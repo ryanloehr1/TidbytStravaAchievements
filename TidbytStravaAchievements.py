@@ -1,9 +1,9 @@
 #Priority TODOs
 #Make it only show when the most recent activity has PRs (check the earthquake app for how to do this)
-#Store the credentials separately
 #Get the credentials via user app input
 #Cache the access token as to not call the API every time
 #Set a frequency for even calling the API, and cache the PR values
+#Generate the webp file
 
 import requests
 import urllib3
@@ -14,7 +14,7 @@ import credentials
 #First get the current access token based on the refresh token. Really should cache the access token and only call this every so often. Split this into a function
 auth_url = "https://www.strava.com/oauth/token"
 auth_payload = {
-    'client_id': credentials.client_id, #Make this dynamic and saved elsewhere
+    'client_id': credentials.client_id,
     'client_secret': credentials.client_secret,
     'refresh_token': credentials.refresh_token, #Refresh token will not expire per Oct 2024 documentation
     'grant_type': "refresh_token",
