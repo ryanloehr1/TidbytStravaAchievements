@@ -2,6 +2,15 @@ load("http.star", "http")
 load("render.star", "render")
 load("encoding/json.star", "json")
 
+
+def main(): #Need to organize the config better
+    access_token = _get_access_token()
+    PRs = analyze_activity(access_token)
+    print('PR value is '+ str(PRs))
+    return render.Root(
+        child = render.WrappedText(str(PRs)),
+    )
+
 def _get_access_token():
     auth_url = "https://www.strava.com/oauth/token"
     auth_payload = {
@@ -39,7 +48,6 @@ def _get_activities(access_token):
 
 
 def _get_activity_details(access_token, activity_id):
-    #print(activity_id)
     specific_act_url = "https://www.strava.com/api/v3/activities/" + activity_id
     header = {"Authorization": "Bearer " + access_token}
     last_act_param = {'include_all_efforts': 'True'}
@@ -58,17 +66,17 @@ def analyze_activity(access_token):
         last_act_id = remove_sci_notation(activities[0]['id'])
         last_act_details = _get_activity_details(access_token, last_act_id)
         act_prs = last_act_details["best_efforts"]
+        PRs = []
         if act_prs:
             for split in act_prs:
                 if split["pr_rank"]:
-                    print(split['name'] + " was the " + str(int(split['pr_rank'])) + "th fastest time at "+ str(int(split['moving_time'])) + " seconds.")
                     PRs.append(split['name'] + " was the " + str(int(split['pr_rank'])) + "th fastest time at "+ str(int(split['moving_time'])) + " seconds.")
                 else:
-                    print("No PR recorded for " + split['name'])
                     PRs.append("No PR recorded for " + split['name'])
         else:
-            print("No PRs recorded during this activity")
             PRs.append("No PRs recorded during this activity")
+
+        return PRs
 
 
 def remove_sci_notation(num):
@@ -81,28 +89,3 @@ def remove_sci_notation(num):
     zeros_to_add = max(0, -exp)
     formatted_num += '.' * zeros_to_add
     return formatted_num
-
-
-def render_on_screen(PRs):
-    return render.Root(
-        #child = render.Text(str(PRs))
-        child = render.Text("Hello, World!")
-    )
-
-def main(PRs): #Need to organize the functions better, so keeping this empty for now
-    print('Starting up')
-    return render.Root(
-        child = render.WrappedText(
-            content=str(PRs),
-            width=50,
-        )
-        #child = render.Text("Hello, World!")
-    )
-
-
-PRs = []
-access_token = _get_access_token()
-analyze_activity(access_token)
-print(PRs)
-render_on_screen(PRs)
-main(PRs)
